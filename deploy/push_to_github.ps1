@@ -59,8 +59,10 @@ $hasOrigin = (git remote) -contains "origin"
 if (-not $hasOrigin) {
     # Repo remoto ja existe na conta?
     $me = (gh api user --jq ".login").Trim()
-    $exists = $false
-    try { gh repo view "$me/$RepoName" *> $null; $exists = $true } catch { $exists = $false }
+    # gh retorna exit code != 0 quando o repo nao existe; comando nativo nao
+    # dispara catch no PowerShell, entao checamos $LASTEXITCODE explicitamente.
+    gh repo view "$me/$RepoName" *> $null
+    $exists = ($LASTEXITCODE -eq 0)
 
     if ($exists) {
         Write-Host "==> Repo $me/$RepoName ja existe. Adicionando remote origin."
