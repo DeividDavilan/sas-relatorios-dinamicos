@@ -1,0 +1,15 @@
+# Saidas geradas pelo pipeline (mantem apenas os placeholders .gitkeep)
+output/pdf/*
+output/html/*
+output/data/*
+!output/**/.gitkeep
+
+# Artefatos temporarios do SAS
+*.sas7bdat
+*.log
+*.lst
+work/
+
+# SO / editores
+.DS_Store
+Thumbs.db

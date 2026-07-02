@@ -1,0 +1,27 @@
+produto,categoria,regiao,valor,quantidade,data
+Notebook Pro 14,Eletronicos,Sudeste,5299.90,3,2026-01-08
+Notebook Pro 14,Eletronicos,Sul,5299.90,2,2026-01-15
+Mouse Sem Fio,Acessorios,Sudeste,129.90,25,2026-01-09
+Mouse Sem Fio,Acessorios,Nordeste,129.90,18,2026-02-02
+Teclado Mecanico,Acessorios,Sudeste,349.00,12,2026-01-22
+Teclado Mecanico,Acessorios,Sul,349.00,9,2026-02-11
+Monitor 27 4K,Eletronicos,Sudeste,2199.00,6,2026-01-30
+Monitor 27 4K,Eletronicos,Centro-Oeste,2199.00,4,2026-02-14
+Cadeira Ergonomica,Mobiliario,Sudeste,1899.00,5,2026-01-18
+Cadeira Ergonomica,Mobiliario,Nordeste,1899.00,3,2026-02-20
+Mesa Standing Desk,Mobiliario,Sul,2450.00,2,2026-02-05
+Mesa Standing Desk,Mobiliario,Sudeste,2450.00,4,2026-02-25
+Webcam Full HD,Acessorios,Norte,289.90,15,2026-01-27
+Webcam Full HD,Acessorios,Sudeste,289.90,22,2026-02-17
+Headset Gamer,Acessorios,Sul,459.00,11,2026-01-12
+Headset Gamer,Acessorios,Centro-Oeste,459.00,7,2026-02-09
+SSD 1TB,Componentes,Sudeste,649.00,30,2026-01-05
+SSD 1TB,Componentes,Nordeste,649.00,14,2026-02-19
+Placa de Video RTX,Componentes,Sudeste,4899.00,3,2026-01-25
+Placa de Video RTX,Componentes,Sul,4899.00,2,2026-02-22
+Memoria RAM 32GB,Componentes,Sudeste,899.00,20,2026-01-14
+Memoria RAM 32GB,Componentes,Norte,899.00,8,2026-02-13
+Impressora Laser,Eletronicos,Nordeste,1299.00,5,2026-01-20
+Impressora Laser,Eletronicos,Sudeste,1299.00,9,2026-02-27
+Roteador Wi-Fi 6,Eletronicos,Sul,599.00,16,2026-01-11
+Roteador Wi-Fi 6,Eletronicos,Sudeste,599.00,21,2026-02-08
