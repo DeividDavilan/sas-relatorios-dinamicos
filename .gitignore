@@ -13,3 +13,8 @@ work/
 # SO / editores
 .DS_Store
 Thumbs.db
+
+# Credenciais do Viya (NUNCA versionar) — repo publico!
+deploy/.viya.env.ps1
+*.env
+
