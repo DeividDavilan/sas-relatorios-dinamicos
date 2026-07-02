@@ -1,0 +1,8 @@
+# Garante terminacoes LF nos arquivos que rodam no SAS Viya (Linux).
+# Evita que o autocrlf do Windows leve CRLF para o servidor de Compute.
+* text=auto eol=lf
+*.sas   text eol=lf
+*.csv   text eol=lf
+*.md    text eol=lf
+*.sh    text eol=lf
+*.ps1   text eol=crlf
