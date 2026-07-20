@@ -13,10 +13,12 @@
 
     %if %superq(STAT_GROUP) = or %superq(STAT_MEASURE) = %then %do;
         /* Sem grupo/medida definidos: lista as primeiras linhas como fallback */
+        title j=center height=12pt "&OPT_TITULO.";
         proc report data=&TXF_DS.(obs=50) nowd
             style(header)=[background=cx1f3864 color=white fontweight=bold];
             columns &KEEP_VARS.;
         run;
+        title;
         %return;
     %end;
 

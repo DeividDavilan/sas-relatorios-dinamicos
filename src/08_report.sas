@@ -76,6 +76,8 @@
     ods graphics off;
     title;
     footnote;
+    footnote2;
+    footnote3;
 
     %log_info(Relatorio finalizado: &DIR_OUT_PDF./&RPT_NOME_ARQ..pdf e
               &DIR_OUT_HTML./&RPT_NOME_ARQ..html);

@@ -140,6 +140,21 @@
     %if not %symexist(N_GRAF) %then %let N_GRAF = 0;
     %if &N_GRAF = %then %let N_GRAF = 0;
 
+    /* ---- Validacao basica do spec ---- */
+    %if &N_COLS. = 0 %then
+        %abortar(Nenhuma coluna definida no report_spec.csv. Adicione pelo menos uma linha 'coluna'.');
+
+    %if %sysfunc(indexw(bar pie line, %lowcase(%sysfunc(scan(%superq(GRAF_TIPO1), 1))))) = 0
+         and &N_GRAF. > 0 %then
+        %log_warn(Tipo do 1o grafico "%superq(GRAF_TIPO1)" nao e bar/pie/line — pode causar erro.);
+
+    %do i = 1 %to &N_GRAF.;
+        %if %superq(GRAF_CAT&i.) = %then
+            %abortar(Grafico &i.: variavel de categoria (eixo X) nao definida no report_spec.);
+        %if %superq(GRAF_MED&i.) = %then
+            %abortar(Grafico &i.: variavel de medida (eixo Y) nao definida no report_spec.);
+    %end;
+
     /* Declara os slots de grafico como globais (evita warning de resolucao) */
     %local i;
     %do i = 1 %to &N_GRAF;

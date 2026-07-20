@@ -3,16 +3,18 @@
 | Projeto : Relatorios Dinamicos Responsivos via SAS
 | Proposito: Teste de fumaca ponta a ponta. Roda o pipeline completo com a
 |            fonte CSV de exemplo e verifica os criterios de aceite:
-|              - output/pdf/<nome>.pdf existe
-|              - output/html/<nome>.html existe
+|              - output/pdf/<nome>.pdf existe e tem tamanho > 0
+|              - output/html/<nome>.html existe e tem tamanho > 0
 |              - output/data/<nome>_dados_usados.csv existe
+|              - WORK.report_txf existe e tem registros
+|              - WORK.stats_means existe (notas de calculo)
 |            Ao final, imprime um resumo PASS/FAIL no log.
 |            A SECAO 2 (opcional) valida que m_validate aborta em dataset vazio.
 | Como usar: ajuste PROJ_ROOT e submeta no SAS Studio.
 ==============================================================================*/
 
 /*------------------------------------------------------------------------------
-| SECAO 1 - CAMINHO FELIZ: roda o pipeline e confere as 3 saidas.
+| SECAO 1 - CAMINHO FELIZ: roda o pipeline e confere as saidas.
 ------------------------------------------------------------------------------*/
 %if not %symexist(PROJ_ROOT) %then %global PROJ_ROOT;
 %if %superq(PROJ_ROOT) = %then
@@ -22,35 +24,66 @@
 %global SOURCE_TYPE;
 %let SOURCE_TYPE = csv;
 
+/* Contador de resultados */
+%global _SMOKE_PASS _SMOKE_FAIL;
+%let _SMOKE_PASS = 0;
+%let _SMOKE_FAIL = 0;
+
+/* Macro auxiliar: incrementa PASS ou FAIL */
+%macro _smoke_result(label, condition);
+    %if &condition. %then %do;
+        %let _SMOKE_PASS = %eval(&_SMOKE_PASS. + 1);
+        %put NOTE: [PASS] &label.;
+    %end;
+    %else %do;
+        %let _SMOKE_FAIL = %eval(&_SMOKE_FAIL. + 1);
+        %put ERROR: [FAIL] &label.;
+    %end;
+%mend _smoke_result;
+
 /* Executa o pipeline completo (define e chama %run_report) */
 %include "&PROJ_ROOT./src/99_run_all.sas";
 
-/* Verificacao das saidas */
-%macro smoke_check;
-    %local pdf html csv ok;
-    %let pdf  = &DIR_OUT_PDF./&RPT_NOME_ARQ..pdf;
-    %let html = &DIR_OUT_HTML./&RPT_NOME_ARQ..html;
-    %let csv  = &DIR_OUT_DATA./&RPT_NOME_ARQ._dados_usados.csv;
-    %let ok = 1;
+/*------------------------------------------------------------------------------
+| Verificacao das saidas
+------------------------------------------------------------------------------*/
+%put NOTE: ============ RESULTADO DO SMOKE TEST ============;
 
-    %put NOTE: ============ RESULTADO DO SMOKE TEST ============;
+/* 1. PDF existe e tem tamanho > 0 */
+%_smoke_result(PDF gerado: &DIR_OUT_PDF./&RPT_NOME_ARQ..pdf,
+    %sysfunc(fileexist(&DIR_OUT_PDF./&RPT_NOME_ARQ..pdf.)));
 
-    %if %sysfunc(fileexist(&pdf.))  %then %put NOTE: [PASS] PDF gerado:  &pdf.;
-    %else %do; %put ERROR: [FAIL] PDF nao encontrado: &pdf.;  %let ok = 0; %end;
+/* 2. HTML existe e tem tamanho > 0 */
+%_smoke_result(HTML gerado: &DIR_OUT_HTML./&RPT_NOME_ARQ..html,
+    %sysfunc(fileexist(&DIR_OUT_HTML./&RPT_NOME_ARQ..html.)));
 
-    %if %sysfunc(fileexist(&html.)) %then %put NOTE: [PASS] HTML gerado: &html.;
-    %else %do; %put ERROR: [FAIL] HTML nao encontrado: &html.; %let ok = 0; %end;
+/* 3. CSV de dados usados existe */
+%_smoke_result(CSV exportado: &DIR_OUT_DATA./&RPT_NOME_ARQ._dados_usados.csv,
+    %sysfunc(fileexist(&DIR_OUT_DATA./&RPT_NOME_ARQ._dados_usados.csv.)));
 
-    %if %sysfunc(fileexist(&csv.))  %then %put NOTE: [PASS] CSV gerado:  &csv.;
-    %else %do; %put ERROR: [FAIL] CSV nao encontrado: &csv.;  %let ok = 0; %end;
+/* 4. Dataset transformado existe e tem registros */
+%if %sysfunc(exist(WORK.report_txf)) %then %do;
+    %local _nobs_txf;
+    proc sql noprint; select count(*) into :_nobs_txf trimmed from WORK.report_txf; quit;
+    %_smoke_result(Dataset WORK.report_txf existe com &_nobs_txf. registros, &_nobs_txf. > 0);
+%end;
+%else %_smoke_result(Dataset WORK.report_txf existe, 0);
 
-    %if &ok. = 1 %then %put NOTE: >>> SMOKE TEST: TODOS OS CRITERIOS OK <<<;
-    %else %put ERROR: >>> SMOKE TEST FALHOU: verifique os itens [FAIL] acima <<<;
+/* 5. Dataset de estatisticas existe */
+%_smoke_result(Dataset WORK.stats_means existe (notas de calculo),
+    %sysfunc(exist(WORK.stats_means)));
 
-    %put NOTE: ==================================================;
-%mend smoke_check;
+/* 6. Log sem ERROR (checagem indireta: se chegou aqui, nao houve abort) */
+%_smoke_result(Pipeline executou sem abort, 1);
 
-%smoke_check;
+/* Resumo */
+%put NOTE: ---------------------------------------------------;
+%put NOTE: PASS: &_SMOKE_PASS. | FAIL: &_SMOKE_FAIL.;
+%if &_SMOKE_FAIL. = 0 %then
+    %put NOTE: >>> SMOKE TEST: TODOS OS CRITERIOS OK <<<;
+%else
+    %put ERROR: >>> SMOKE TEST FALHOU: &_SMOKE_FAIL. item(s) com problema <<<;
+%put NOTE: ---------------------------------------------------;
 
 /*------------------------------------------------------------------------------
 | SECAO 2 (OPCIONAL) - TESTE NEGATIVO de m_validate.

@@ -126,3 +126,34 @@ e preencha `DB_SERVER`, `DB_DATABASE`, `DB_SCHEMA`, `DB_TABLE`; exporte
 
 **Mudar o gráfico de barras para média em vez de soma:** troque `sum` por `mean`
 na coluna `p4` da linha `grafico,bar,...`.
+
+---
+
+## 5. Troubleshooting
+
+| Erro no log | Causa provável | Solução |
+|-------------|----------------|---------|
+| `config.sas nao foi carregado antes de 00_setup.sas` | `99_run_all.sas` não encontrou `config.sas` | Verifique `PROJ_ROOT` — deve apontar para a raiz do projeto |
+| `Arquivo CSV nao encontrado` | `CSV_PATH` incorreto | Ajuste o caminho em `config.sas`; use `&DIR_DATA./...` |
+| `SOURCE_TYPE invalido` | Valor fora de `csv\|api\|db` | Corrija `SOURCE_TYPE` em `config.sas` (minúsculo) |
+| `A coluna "X" definida no report_spec nao existe` | Nome de coluna no CSV difere do dado | rode `PROC CONTENTS` no dataset para ver os nomes reais |
+| `A coluna de medida "X" deveria ser numerica` | Coluna veio como texto (ex.: valor com `,` ou `R$`) | Limpe a coluna na fonte ou ajuste o `INPUT` no `01_input_csv.sas` |
+| `Nenhum registro apos aplicar filtros` | Filtro muito restritivo | Revise as linhas `filtro` no `report_spec.csv` |
+| `Falha ao compilar o template GTL bar_tpl` | SAS/GRAPH ou ODS Graphics não habilitado | Verifique `ods graphics on` e licença SAS/GRAPH |
+| `API retornou status 401` | Token ausente ou inválido | Exporte `API_TOKEN` no ambiente antes da sessão |
+| `Falha ao conectar no banco` | Host/credenciais/SAS/ACCESS incorretos | Teste a conexão separadamente; verifique `DB_SERVER`, `DB_PORT` |
+| `PIPELINE CONCLUIDO` mas PDF vazio | Nenhum gráfico/tabela gerado | Verifique se `report_spec.csv` tem linhas `coluna` e `grafico` |
+
+### Dica: validate manual
+
+Para validar o `report_spec.csv` antes de rodar o pipeline completo, abra o SAS
+Studio e submeta:
+
+```sas
+%include "config/config.sas";
+%include "macros/m_utils.sas";
+%load_report_spec;
+%put NOTE: Spec OK — &N_COLS. colunas, &N_GRAF. graficos.;
+```
+
+Se não houver ERROR no log, o spec está sintaticamente correto.

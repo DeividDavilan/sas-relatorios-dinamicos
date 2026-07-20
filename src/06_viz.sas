@@ -38,12 +38,13 @@
 
     /* ---------------- BARRAS: template GTL reutilizavel ---------------- */
     %if &tipo. = bar %then %do;
-        %let dmin = %superq(vmin); %if &dmin. = %then %let dmin = .;
-        %let dmax = %superq(vmax); %if &dmax. = %then %let dmax = .;
+        %let dmin = %superq(vmin);
+        %let dmax = %superq(vmax);
 
         proc sgrender data=&TXF_DS. template=bar_tpl;
             dynamic _x="&cat." _y="&med." _title="&titulo."
-                    _ymin=&dmin. _ymax=&dmax.;
+                    %if &dmin. ne %then %do; _ymin=&dmin.; %end;
+                    %if &dmax. ne %then %do; _ymax=&dmax.; %end;
         run;
     %end;
 
@@ -70,7 +71,7 @@
                 title "&titulo.";
                 pie &cat. / response=&med. datalabeldisplay=(category percent);
             run;
-            title;
+            title; /* limpa title apos SGPIE */
         %end;
         %else %do;
             /* Fallback: participacao como barras horizontais com % */
@@ -80,7 +81,7 @@
                              categoryorder=respdesc datalabel;
                 xaxis grid label="&med.";
             run;
-            title;
+            title; /* limpa title apos SGPLOT fallback */
         %end;
     %end;
 
